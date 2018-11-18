@@ -33,6 +33,7 @@ searchRouter.post('/search', (req, res) => {
 });
 
 const api = process.env.ITUNES_API || 'https://itunes.apple.com/search?term=';
+const results = [];
 
 const getContent = (term) => {
     const appendix = '&media=musicVideo';
@@ -55,4 +56,14 @@ searchRouter.get('/top', (req, res) => {
             const queries = result.map(query => query.searchWord);
             res.send(queries);
         });
-})
+});
+
+const getSingleTrackInfo = (trackId) => this.results.filter(result => result.trackId === trackId)
+
+searchRouter.get('/lookup', (req, res) => {
+    getContent(req.query.term)
+        .then(response => response.json())
+        .then(responseData => res.send(responseData.results
+            .filter(result => result.trackId === parseInt(req.query.trackId))))
+        .catch(err => res.status(500).json({ error: err }))
+});
